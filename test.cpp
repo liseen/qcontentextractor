@@ -17,6 +17,9 @@ int main(int argc, char* argv[])
             vdom_content.append(line);
             vdom_content.append("\n");
         }
+        if (vdom_content.size() > 1) {
+            vdom_content = vdom_content.substr(0, vdom_content.size() - 2);
+        }
     } else {
         ifstream in_file;
         in_file.open(argv[1]);

@@ -52,7 +52,7 @@ bool Extractor::extract(vdom::Window &window, Result &result, bool debug)
 
 /* top down first, get all text block */
 bool Extractor::extract_block_list(Node* node, std::list<TextBlock> &block_list) {
-    if (node->type() == Node::ELEMENT) {
+    if (node->type() == Node::ELEMENT && node->render_type() != Node::INLINE) {
         /* filters */
         if (check_is_noise(node)) {
             prev_is_noise = true;
@@ -119,15 +119,18 @@ void Extractor::tag_block(TextBlock &block) {
     int w = node->w();
     int h = node->h();
 
-    if (x + w > 0.5 * doc_width && w > 0.33 * doc_width && \
-        block.content_size() > 100 && \
-        block.anchor_ratio() < 20 && block.tag_density() < 0.1 && block.space_ratio() < 50 ) {
-        block.set_is_good(true);
+    if (h < 400 && y > 0.5 * doc_height && Util::contain_copyright_text(node->content())) { /* bottom copyright .. */
+        block.set_is_bad(true);
+        return;
     }
 
-    /* bottom copyright .. */
-    if (h < 300 && y > 0.8 * doc_height && Util::contain_copyright_text(node->content())) {
-        return block.set_is_bad(true);
+    if (x + w > 0.5 * doc_width && w > 0.33 * doc_width && \
+        y < 0.7 * doc_height && \
+        block.content_size() > 50 && \
+        block.anchor_ratio() < 20 && block.tag_density() < 0.1 && block.space_ratio() < 50 ) {
+        block.set_is_good(true);
+
+        return;
     }
 }
 

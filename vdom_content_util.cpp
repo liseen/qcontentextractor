@@ -8,7 +8,7 @@ namespace content {
 #define OVECCOUNT 60    /* should be a multiple of 3 */
 
 static pcre *copyright_re = NULL;
-static const char *copyright_pat = "(?:copyright|版权)";
+static const char *copyright_pat = "(?:copyright|版权|友情链接|免责申明|法律申明|联系我们|注册|详情请看|导航|首页|>)";
 
 bool Util::contain_copyright_text(const std::string &text) {
     if (copyright_re == NULL) {

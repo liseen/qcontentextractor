@@ -37,6 +37,10 @@ public:
     }
 
     int compute_anchor_length(Node *cnode) {
+        if (cnode->tag_name() == "A") {
+            return cnode->content().size();
+        }
+
         int al = 0;
         int child_size = cnode->child_nodes_size();
         for (int i = 0; i < child_size; ++i) {
@@ -238,6 +242,8 @@ public:
             std::cout << "content: " << "node is null" << std::endl;
         } else {
             std::cout << "type: " << _node->type() << std::endl;
+            std::cout << "tagname: " << _node->tag_name() << std::endl;
+            std::cout << "allchildreninline: " << _node->all_children_inline() << std::endl;
             std::cout << "x: " << _node->x() << std::endl;
             std::cout << "y: " << _node->y() << std::endl;
             std::cout << "w: " << _node->w() << std::endl;
