@@ -14,7 +14,8 @@ bool Util::contain_copyright_text(const std::string &text) {
     if (copyright_re == NULL) {
         const char *error;
         int erroffset;
-        copyright_re = pcre_compile(copyright_pat, PCRE_CASELESS | PCRE_UTF8, &error, &erroffset, NULL);
+        //copyright_re = pcre_compile(copyright_pat, PCRE_CASELESS | PCRE_UTF8, &error, &erroffset, NULL);
+        copyright_re = pcre_compile(copyright_pat, PCRE_CASELESS, &error, &erroffset, NULL);
         if (copyright_re == NULL) {
             fprintf(stderr, "PCRE compilation failed at offset %d: %s\n", erroffset, error);
             return false;

@@ -22,7 +22,7 @@ Extractor::~Extractor()
 }
 
 
-bool Extractor::extract(vdom::Window &window, Result &result)
+bool Extractor::extract(vdom::Window &window, Result &result, bool debug)
 {
     // init
     vdom::Document *doc = window.mutable_doc();
@@ -40,7 +40,10 @@ bool Extractor::extract(vdom::Window &window, Result &result)
     select_good_block(block_list);
     expand_good_block(block_list);
 
-    debug_print_block_list(block_list);
+    if (debug) {
+        debug_print_block_list(block_list);
+    }
+
     merge_content_block(block_list, result);
     //merge_content(block_list);
 
@@ -221,15 +224,24 @@ bool Extractor::expand_good_block(std::list<TextBlock> &block_list) {
 bool Extractor::merge_content_block(TextBlockList &block_list, Result &result) {
     TextBlockIter end_it = block_list.end();
     bool prev_is_content = true;
+    bool prev_is_space = true;
     result.content.reserve(50 * 1024);
     for (TextBlockIter it = block_list.begin(); it != end_it; ++it) {
         if (it->is_content()) {
             if (!prev_is_content) {
                 result.content.append("\n");
             }
-
             prev_is_content = true;
-            result.content.append(" ");
+
+            if (!prev_is_space) {
+                result.content.append(" ");
+            }
+            if (it->space_ratio() == 100) {
+                prev_is_space = true;
+            } else {
+                prev_is_space = false;
+            }
+
             result.content.append(it->node()->content());
         } else {
             prev_is_content = false;

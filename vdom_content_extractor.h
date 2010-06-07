@@ -25,7 +25,7 @@ public:
     Extractor();
     ~Extractor();
 
-    bool extract(vdom::Window &window, Result &result);
+    bool extract(vdom::Window &window, Result &result, bool debug = false);
 
 private:
     bool extract_block_list(Node* node, TextBlockList  &block_list);
