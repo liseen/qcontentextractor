@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 
     vdom::content::Extractor extractor;
     vdom::content::Result ret;
-    extractor.extract(win, ret, true);
+    extractor.extract(&win, ret, true);
     ret.debug_print();
     return 0;
 }

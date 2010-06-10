@@ -24,12 +24,16 @@ struct Result
     float list_confidence;
     std::string raw_title;
     std::string title;
+    std::string keywords;
+    std::string description;
     std::string content;
     std::list<ImageResult> images;
 
     void debug_print() {
         std::cout << "okay: " << extracted_okay << std::endl;
         std::cout << "title: " << title << std::endl;
+        std::cout << "keywords: " << keywords << std::endl;
+        std::cout << "description: " << description << std::endl;
         std::cout << "content: " << content << std::endl;
     }
 };

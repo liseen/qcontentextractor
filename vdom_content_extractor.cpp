@@ -22,16 +22,20 @@ Extractor::~Extractor()
 }
 
 
-bool Extractor::extract(vdom::Window &window, Result &result, bool debug)
+bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
 {
     // init
-    vdom::Document *doc = window.mutable_doc();
+    vdom::Document *doc = window->mutable_doc();
 
     result.raw_title = doc->title();
     result.title = doc->title();
     if (! doc->has_body()) {
+        result.extracted_okay = false;
         return false;
     }
+
+    result.keywords = doc->keywords();
+    result.description = doc->description();
 
     vdom::Node* body = doc->mutable_body();
     std::list<TextBlock> block_list;
@@ -52,7 +56,8 @@ bool Extractor::extract(vdom::Window &window, Result &result, bool debug)
 
 /* top down first, get all text block */
 bool Extractor::extract_block_list(Node* node, std::list<TextBlock> &block_list) {
-    if (node->type() == Node::ELEMENT && node->render_type() != Node::INLINE) {
+    if (node->tag_name() == "FORM" ||
+            (node->type() == Node::ELEMENT && node->render_type() != Node::INLINE) ) {
         /* filters */
         if (check_is_noise(node)) {
             prev_is_noise = true;
@@ -124,10 +129,17 @@ void Extractor::tag_block(TextBlock &block) {
         return;
     }
 
-    if (x + w > 0.5 * doc_width && w > 0.33 * doc_width && \
-        y < 0.7 * doc_height && \
+    int good_block_max_height = 0.7 * doc_height;
+    if (good_block_max_height < doc_height - 500) {
+        good_block_max_height = doc_height - 500;
+    }
+
+    if (x + w > 0.3 * doc_width && \
+        y > 50 && \
+        y < good_block_max_height && \
         block.content_size() > 50 && \
         block.anchor_ratio() < 20 && block.tag_density() < 0.1 && block.space_ratio() < 50 ) {
+
         block.set_is_good(true);
 
         return;
@@ -162,19 +174,24 @@ bool Extractor::expand_good_block(std::list<TextBlock> &block_list) {
                 Node* node = ei->node();
                 if (ei->space_ratio() > 90 && node->w() == 0) {
                     ++space_blocks;
-                } else if (space_blocks > 4) {
+                } else if ((abs(node->x() - it->node()->x()) > 100)) {
+                    ++space_blocks;
+                }
+
+                if (space_blocks > 5) {
                     break;
                 } else if (ei->is_bad()) {
                     break;
-                } else if (ei->is_good() || ei->is_content()) {
+                } else if ((ei->is_good() || ei->is_content()) && abs(node->y() - it->node()->y()) < 400 ) {
                     for (; last_content != ei; ++last_content) {
                         last_content->set_is_content(true);
                     }
                     break;
-                } else if (space_blocks <= 4 && \
-                        node->x() + node->w() > 0.5 * doc_width && node->w() > 0.33 * doc_width && \
+                } else if (space_blocks <= 5 && \
+                        abs(node->y() - it->node()->y()) < 200 &&\
+                        node->x() + node->w() > 0.5 * doc_width && node->w() > 0.3 * doc_width && \
                         ei->content_size() > 20 && \
-                        ei->anchor_ratio() < 50 && ei->tag_density() < 0.2 && ei->space_ratio() < 50 ) {
+                        ei->anchor_ratio() < 20 && ei->tag_density() < 0.2 && ei->space_ratio() < 50 ) {
                     space_blocks  = 0;
                     ei->set_is_content(true);
                     for (; last_content != ei; ++last_content) {
@@ -194,17 +211,23 @@ bool Extractor::expand_good_block(std::list<TextBlock> &block_list) {
                 Node* node = ei->node();
                 if (ei->space_ratio() > 90 && node->w() == 0) {
                     ++space_blocks;
-                } else if (space_blocks > 4) {
+                    continue;
+                } else if ((abs(node->x() - it->node()->x()) > 100)) {
+                    ++space_blocks;
+                }
+
+                if (space_blocks > 5) {
                     break;
                 } else if (ei->is_bad()) {
                     break;
-                } else if (ei->is_good() || ei->is_content()) {
+                } else if ((ei->is_good() || ei->is_content()) && abs(node->y() - it->node()->y()) < 400 ) {
                     for (; last_content != ei; --last_content) {
                         last_content->set_is_content(true);
                     }
                     break;
-                } else if (space_blocks <= 4 && \
-                        node->x() + node->w() > 0.5 * doc_width && node->w() > 0.33 * doc_width && \
+                } else if (space_blocks <= 5 && \
+                        abs(node->y() - it->node()->y()) < 200 &&\
+                        node->x() + node->w() > 0.5 * doc_width && node->w() > 0.3 * doc_width && \
                         ei->content_size() > 20 && \
                         ei->anchor_ratio() < 50 && ei->tag_density() < 0.2 && ei->space_ratio() < 50 ) {
                     space_blocks  = 0;
