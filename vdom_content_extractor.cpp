@@ -34,6 +34,8 @@ bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
         return false;
     }
 
+    doc->mutable_body()->build_vdom_tree(window, doc, NULL, 0);
+
     result.keywords = doc->keywords();
     result.description = doc->description();
 
@@ -129,7 +131,7 @@ void Extractor::tag_block(TextBlock &block) {
         return;
     }
 
-    int good_block_max_height = 0.7 * doc_height;
+    int good_block_max_height = (int)(0.7 * doc_height);
     if (good_block_max_height < doc_height - 500) {
         good_block_max_height = doc_height - 500;
     }

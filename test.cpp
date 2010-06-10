@@ -44,7 +44,6 @@ int main(int argc, char* argv[])
     ::google::protobuf::TextFormat::ParseFromString(vdom_content, &win);
     vdom::Document *doc = win.mutable_doc();
 
-    doc->mutable_body()->build_vdom_tree(&win, doc, NULL, 0);
 
     vdom::content::Extractor extractor;
     vdom::content::Result ret;
