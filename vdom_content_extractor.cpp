@@ -53,6 +53,7 @@ bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
     merge_content_block(block_list, result);
     //merge_content(block_list);
 
+    result.extracted_okay = true;
     return true;
 }
 
