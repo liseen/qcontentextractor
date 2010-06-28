@@ -1,6 +1,10 @@
 #include <fstream>
 #include <iostream>
 #include <vdom.h>
+#include <tcrdb.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 #include <google/protobuf/text_format.h>
 
@@ -10,40 +14,50 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+    std::string vdom_key;
     std::string vdom_content;
     if (argc < 2) {
-        std::string line;
-        while (getline(cin, line)) {
-            vdom_content.append(line);
-            vdom_content.append("\n");
-        }
-        if (vdom_content.size() > 1) {
-            vdom_content = vdom_content.substr(0, vdom_content.size() - 1);
-        }
-    } else {
-        ifstream in_file;
-        in_file.open(argv[1]);
-        if (!in_file) {
-            cout << "Unable to open file";
-            exit(1); // terminate with error
-        }
-        std::string line;
-        while (getline(in_file, line)) {
-            vdom_content.append(line);
-            vdom_content.append("\n");
-        }
-
-        if (vdom_content.size() > 1) {
-            vdom_content = vdom_content.substr(0, vdom_content.size() - 1);
-        }
-
-        in_file.close();
+        fprintf(stderr, "not vdom key gived\n");
+        exit(1);
     }
 
-    vdom::Window win;
-    ::google::protobuf::TextFormat::ParseFromString(vdom_content, &win);
-    vdom::Document *doc = win.mutable_doc();
+    vdom_key.append(argv[1]);
+    vdom_key.append(".v");
 
+    TCRDB *rdb;
+    int ecode;
+    char *value;
+
+    /* create the object */
+    rdb = tcrdbnew();
+
+    /* connect to the server */
+    if(!tcrdbopen(rdb, "crwl2", 9860)){
+        ecode = tcrdbecode(rdb);
+        fprintf(stderr, "open error: %s\n", tcrdberrmsg(ecode));
+    }
+
+    int vdom_content_size;
+    value = (char*)tcrdbget(rdb, vdom_key.c_str(), vdom_key.size(), &vdom_content_size);
+    if(value){
+        vdom_content.append(value, vdom_content_size);
+        free(value);
+    } else {
+        ecode = tcrdbecode(rdb);
+        fprintf(stderr, "get error: %s\n", tcrdberrmsg(ecode));
+    }
+
+    /* close the connection */
+    if(!tcrdbclose(rdb)){
+        ecode = tcrdbecode(rdb);
+        fprintf(stderr, "close error: %s\n", tcrdberrmsg(ecode));
+    }
+
+    /* delete the object */
+    tcrdbdel(rdb);
+
+    vdom::Window win;
+    win.ParseFromString(vdom_content);
 
     vdom::content::Extractor extractor;
     vdom::content::Result ret;

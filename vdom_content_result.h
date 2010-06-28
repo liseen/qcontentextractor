@@ -20,8 +20,15 @@ struct ImageResult {
 
 struct Result
 {
+    Result() {
+        extracted_okay = false;
+        list_confidence = 0; // %100
+        content_confidence = 0; // %100
+    }
+
     bool extracted_okay;
-    float list_confidence;
+    int list_confidence; // %100
+    int content_confidence; // %100
     std::string raw_title;
     std::string title;
     std::string keywords;
@@ -31,6 +38,8 @@ struct Result
 
     void debug_print() {
         std::cout << "okay: " << extracted_okay << std::endl;
+        std::cout << "list_confidence: " << list_confidence << std::endl;
+        std::cout << "content_confidence: " << content_confidence << std::endl;
         std::cout << "title: " << title << std::endl;
         std::cout << "keywords: " << keywords << std::endl;
         std::cout << "description: " << description << std::endl;
