@@ -192,9 +192,9 @@ bool Extractor::expand_good_block(std::list<TextBlock> &block_list) {
                     break;
                 } else if (space_blocks <= 5 && \
                         abs(node->y() - it->node()->y()) < 200 &&\
-                        node->x() + node->w() > 0.5 * doc_width && node->w() > 0.3 * doc_width && \
+                        node->x() + node->w() > 0.11 * doc_width && \
                         ei->content_size() > 20 && \
-                        ei->anchor_ratio() < 40 && ei->tag_density() < 0.2 && ei->space_ratio() < 50 ) {
+                        ei->anchor_ratio() < 50 && ei->tag_density() < 0.2 && ei->space_ratio() < 50 ) {
                     space_blocks  = 0;
                     ei->set_is_content(true);
                     for (; last_content != ei; ++last_content) {
@@ -230,7 +230,7 @@ bool Extractor::expand_good_block(std::list<TextBlock> &block_list) {
                     break;
                 } else if (space_blocks <= 5 && \
                         abs(node->y() - it->node()->y()) < 200 &&\
-                        node->x() + node->w() > 0.5 * doc_width && node->w() > 0.3 * doc_width && \
+                        node->x() + node->w() > 0.11 * doc_width && \
                         ei->content_size() > 20 && \
                         ei->anchor_ratio() < 50 && ei->tag_density() < 0.2 && ei->space_ratio() < 50 ) {
                     space_blocks  = 0;
@@ -286,6 +286,7 @@ bool Extractor::merge_content_block(TextBlockList &block_list, Result &result) {
         for (TextBlockIter it = block_list.begin(); it != end_it; ++it) {
             if (!it->is_bad()) {
                 result.content.append(it->node()->content());
+                result.content.append(" ");
             }
         }
     }
