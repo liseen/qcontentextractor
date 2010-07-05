@@ -59,8 +59,7 @@ bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
 
 /* top down first, get all text block */
 bool Extractor::extract_block_list(Node* node, std::list<TextBlock> &block_list) {
-    if (node->tag_name() == "FORM" ||
-            (node->type() == Node::ELEMENT && node->render_type() != Node::INLINE) ) {
+    if (node->type() == Node::ELEMENT) {
         /* filters */
         if (check_is_noise(node)) {
             prev_is_noise = true;
@@ -69,7 +68,7 @@ bool Extractor::extract_block_list(Node* node, std::list<TextBlock> &block_list)
             }
         }
 
-        if (node->render_type() == Node::BLOCK && node->all_children_inline()) {
+        if (node->all_children_inline()) {
             TextBlock block;
             block.set_node(node);
             block.set_prev_is_noise(prev_is_noise);
@@ -127,7 +126,7 @@ void Extractor::tag_block(TextBlock &block) {
     int w = node->w();
     int h = node->h();
 
-    if (h < 400 && y > 0.5 * doc_height && Util::contain_copyright_text(node->content())) { /* bottom copyright .. */
+    if (h < 400 && (y < 0.3 * doc_height || y > 0.7 * doc_height) && Util::contain_copyright_text(node->content())) { /* bottom copyright .. */
         block.set_is_bad(true);
         return;
     }
@@ -175,7 +174,7 @@ bool Extractor::expand_good_block(std::list<TextBlock> &block_list) {
             // forward expand
             for (; ei != end_it; ++ei) {
                 Node* node = ei->node();
-                if (ei->space_ratio() > 90 && node->w() == 0) {
+                if ((ei->space_ratio() > 90 || ei->content_size() == 0) && node->w() == 0) {
                     ++space_blocks;
                 } else if ((abs(node->x() - it->node()->x()) > 100)) {
                     ++space_blocks;
@@ -212,7 +211,7 @@ bool Extractor::expand_good_block(std::list<TextBlock> &block_list) {
             last_content = ei;
             for (; ei != end_it; --ei) {
                 Node* node = ei->node();
-                if (ei->space_ratio() > 90 && node->w() == 0) {
+                if ((ei->space_ratio() > 90 || ei->content_size() == 0) && node->w() == 0) {
                     ++space_blocks;
                     continue;
                 } else if ((abs(node->x() - it->node()->x()) > 100)) {
