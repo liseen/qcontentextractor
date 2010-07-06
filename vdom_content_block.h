@@ -23,7 +23,11 @@ struct TextBlock {
         _has_punct_count = false;
         _has_punct_ratio = false;
         _has_space_ratio = false;
+        _has_contain_outside_link = false;
+        _has_contain_advertise_link = false;
 
+        _contain_outside_link = false;
+        _contain_advertise_link = false;
         _is_good = false;
         _is_bad = false;
         _is_content = false;
@@ -191,6 +195,21 @@ public:
         }
     }
 
+    inline bool has_contain_outside_link() const {
+        return _has_contain_outside_link;
+    }
+
+    inline bool contain_outside_link() const {
+        if (has_contain_outside_link()) {
+            return _contain_outside_link;
+        } else {
+            if (_node->tag_name() ==  "A") {
+            } else {
+
+            }
+        }
+    }
+
     inline bool is_good() {
         return _is_good;
     }
@@ -257,6 +276,7 @@ public:
             std::cout << "space_ratio " << space_ratio() << std::endl;
             std::cout << "anchor_length: " << anchor_length() << std::endl;
             std::cout << "anchor_ratio: " << anchor_ratio() << std::endl;
+            std::cout << "repeat_sig: " << _node->repeat_sig() << std::endl;
         }
     }
 private:
@@ -274,6 +294,10 @@ private:
     bool _has_space_ratio;
     int _space_ratio;
 
+    bool _has_contain_outside_link;
+    bool _contain_outside_link;
+    bool _has_contain_advertise_link;
+    bool _contain_advertise_link;
     bool _prev_is_noise;
     bool _next_is_noise;
     bool _is_good;

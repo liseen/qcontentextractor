@@ -1,6 +1,8 @@
 #include "vdom_content_extractor.h"
 #include "vdom_content_util.h"
 
+#include <map>
+
 namespace vdom {
 namespace content {
 
@@ -40,6 +42,21 @@ bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
     result.description = doc->description();
 
     vdom::Node* body = doc->mutable_body();
+    body->build_repeat_sig();
+    if (debug) {
+        std::cout << "body repeat sig: " << body->repeat_sig() << std::endl;
+        RepeatGroupList group_list;
+        extract_repeat_groups(group_list, body);
+        std::cout << "extract_repats_size " << group_list.size() << std::endl;
+        for (RepeatGroupListIter lit = group_list.begin(); lit != group_list.end(); lit++) {
+            std::cout << "group: =========================" << std::endl;
+            for (RepeatGroupIter it = lit->begin(); it != lit->end(); it++) {
+                std::cout << "node: =========================" << std::endl;
+                std::cout << (*it)->content();
+            }
+        }
+    }
+
     std::list<TextBlock> block_list;
     extract_block_list(body, block_list);
 
@@ -292,6 +309,39 @@ bool Extractor::merge_content_block(TextBlockList &block_list, Result &result) {
 
     return true;
 }
+
+bool Extractor::extract_repeat_groups(RepeatGroupList &groups, Node* node)
+{
+    std::map<std::string, RepeatGroup> group_map;
+    std::map<std::string, RepeatGroup>::iterator end_it = group_map.end();
+    std::map<std::string, RepeatGroup>::iterator it;
+
+    int child_size = node->child_nodes_size();
+    for (int i = 0; i < child_size; i++) {
+        Node* child = node->mutable_child_nodes(i);
+        if (child->type() == Node::ELEMENT && child->repeat_sig().size() > 5 ) {
+            it = group_map.find(child->repeat_sig());
+            if (it == end_it) {
+                RepeatGroup group;
+                group.push_back(child);
+                group_map.insert(std::pair<std::string, RepeatGroup>(child->repeat_sig(), group));
+            } else {
+                it->second.push_back(child);
+            }
+        }
+    }
+
+    for (it = group_map.begin() ; it != end_it; it++ ) {
+        if (it->second.size() >= 2) {
+            groups.push_back(it->second);
+        } else {
+            extract_repeat_groups(groups, it->second.front());
+        }
+    }
+
+    return true;
+}
+
 } //namespace vdom
 } //namespace content
 

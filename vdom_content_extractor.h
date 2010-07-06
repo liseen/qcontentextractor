@@ -19,6 +19,11 @@ namespace content {
 typedef std::list<TextBlock> TextBlockList;
 typedef std::list<TextBlock>::iterator TextBlockIter;
 
+typedef std::list<Node*> RepeatGroup;
+typedef std::list<Node*>::iterator RepeatGroupIter;
+typedef std::list<RepeatGroup> RepeatGroupList;
+typedef std::list<RepeatGroup>::iterator RepeatGroupListIter;
+
 class Extractor
 {
 public:
@@ -35,6 +40,7 @@ private:
     bool expand_good_block(TextBlockList &block_list);
     bool merge_content_block(TextBlockList &block_list, Result &result);
 
+    bool extract_repeat_groups(RepeatGroupList &groups, Node* node);
 private:
     bool prev_is_noise;
 };
