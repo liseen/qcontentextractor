@@ -59,6 +59,10 @@ int main(int argc, char* argv[])
     vdom::Window win;
     win.ParseFromString(vdom_content);
 
+    std::cout << "vdom: " << std::endl;
+    std::cout << win.Utf8DebugString() << std::endl;
+
+    std::cout << "extractor:" << std::endl;
     vdom::content::Extractor extractor;
     vdom::content::Result ret;
     extractor.extract(&win, ret, true);

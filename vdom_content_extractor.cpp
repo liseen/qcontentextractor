@@ -52,7 +52,16 @@ bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
             std::cout << "group: =========================" << std::endl;
             for (RepeatGroupIter it = lit->begin(); it != lit->end(); it++) {
                 std::cout << "node: =========================" << std::endl;
-                std::cout << (*it)->content();
+                //std::cout << (*it)->content();
+                if ((*it)->repeat_sig().find("#A") != std::string::npos) {
+                    std::cout << "x: " << (*it)->x() << std::endl;
+                    std::cout << "y: " << (*it)->y() << std::endl;
+                    std::cout << "w: " << (*it)->w() << std::endl;
+                    std::cout << "h: " << (*it)->h() << std::endl;
+                    std::string normal;
+                    Util::normalize_content((*it)->content(), normal);
+                    std::cout << "content: " << normal << std::endl;
+                }
             }
         }
     }
@@ -83,18 +92,18 @@ bool Extractor::extract_block_list(Node* node, std::list<TextBlock> &block_list)
             if (!block_list.empty()) {
                 block_list.back().set_next_is_noise(true);
             }
-        }
-
-        if (node->all_children_inline()) {
-            TextBlock block;
-            block.set_node(node);
-            block.set_prev_is_noise(prev_is_noise);
-            tag_block(block);
-            block_list.push_back(block);
         } else {
-            int child_size = node->child_nodes_size();
-            for (int i = 0; i < child_size; i++) {
-                extract_block_list(node->mutable_child_nodes(i), block_list);
+            if (node->all_children_inline()) {
+                TextBlock block;
+                block.set_node(node);
+                block.set_prev_is_noise(prev_is_noise);
+                tag_block(block);
+                block_list.push_back(block);
+            } else {
+                int child_size = node->child_nodes_size();
+                for (int i = 0; i < child_size; i++) {
+                    extract_block_list(node->mutable_child_nodes(i), block_list);
+                }
             }
         }
     } else {
@@ -154,6 +163,7 @@ void Extractor::tag_block(TextBlock &block) {
     }
 
     if (x + w > 0.3 * doc_width && \
+        x < 0.6 * doc_width && \
         y > 50 && \
         y < good_block_max_height && \
         block.content_size() > 50 && \

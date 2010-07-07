@@ -40,13 +40,28 @@ static void split_text(const std::string &text, std::vector<std::string> &str_ve
 
 }
 
-static void normalize_content(const std::string &raw, std::string &normalized) {
-    //
-    //const char *rmalized.
-    //space
-    //
-}
 */
+
+void
+Util::normalize_content(const std::string &raw, std::string &normalized) {
+    const char *p = raw.c_str();
+    int size = raw.size();
+    bool pre_is_space = false;
+    for (int i = 0; i < size; i++) {
+        char c = *(p+i);
+        if (isspace(c)) {
+            if (pre_is_space) {
+                // do nothihng
+            } else {
+                pre_is_space = true;
+                normalized.append(" ");
+            }
+        } else {
+            pre_is_space = false;
+            normalized.append(1, c);
+        }
+    }
+}
 
 } // namespace content
 } // namespace vdom
