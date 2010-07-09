@@ -269,6 +269,8 @@ public:
             std::cout << "h: " << _node->h() << std::endl;
             std::cout << "is_good: " << is_good() << std::endl;
             std::cout << "is_bad: " << is_bad() << std::endl;
+            std::cout << "prev_is_noise: " << prev_is_noise() << std::endl;
+            std::cout << "next_is_noise: " << next_is_noise() << std::endl;
             std::cout << "is_content: " << is_content() << std::endl;
             std::cout << "content_size: " << content_size() << std::endl;
             std::cout << "content: " << _node->content() << std::endl;

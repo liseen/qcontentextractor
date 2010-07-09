@@ -41,6 +41,8 @@ private:
     bool merge_content_block(TextBlockList &block_list, Result &result);
 
     bool extract_repeat_groups(RepeatGroupList &groups, Node* node);
+    int compute_list_confidence(vdom::Document *doc, RepeatGroupList &groups);
+    bool is_link_group(RepeatGroup &group);
 private:
     bool prev_is_noise;
 };
