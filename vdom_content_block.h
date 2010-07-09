@@ -274,6 +274,7 @@ public:
             std::cout << "is_content: " << is_content() << std::endl;
             std::cout << "content_size: " << content_size() << std::endl;
             std::cout << "content: " << _node->content() << std::endl;
+            std::cout << "normalized_content: " << _node->normalized_content() << std::endl;
             std::cout << "tag_desity: " << tag_density() << std::endl;
             std::cout << "space_ratio " << space_ratio() << std::endl;
             std::cout << "anchor_length: " << anchor_length() << std::endl;

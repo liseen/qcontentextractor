@@ -46,7 +46,8 @@ void
 Util::normalize_content(const std::string &raw, std::string &normalized) {
     const char *p = raw.c_str();
     int size = raw.size();
-    bool pre_is_space = false;
+    normalized.reserve(size);
+    bool pre_is_space = true;
     for (int i = 0; i < size; i++) {
         char c = *(p+i);
         if (isspace(c)) {

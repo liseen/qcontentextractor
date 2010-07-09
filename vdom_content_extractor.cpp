@@ -149,7 +149,7 @@ bool Extractor::check_is_noise(Node *node) {
     }
 
     /* left and right advertise banner */
-    if (w > 0  && h > 200 && w < 400 &&  (float)h/w > 0.8 && (x > 0.6 * doc_width || x < 0.3 * doc_width) ) {
+    if (w > 0  && h > 200 && w < 350 &&  (float)h/w > 0.8 && (x > 0.6 * doc_width || x + w  < 0.4 * doc_width) ) {
         //DD("left or right adver or menu: " << node->content());
         return true;
     }
@@ -182,9 +182,9 @@ void Extractor::tag_block(TextBlock &block) {
 
     if (x + w > 0.3 * doc_width && \
         x < 0.6 * doc_width && \
-        y > 50 && \
+        y > 100 && \
         y < good_block_max_height && \
-        block.content_size() > 50 && \
+        block.content_size() > 35 && \
         block.anchor_ratio() < 20 && block.tag_density() < 0.1 && block.space_ratio() < 50 ) {
 
         block.set_is_good(true);
@@ -402,7 +402,7 @@ bool Extractor::is_link_group(RepeatGroup &group)
 
         for (std::list<vdom::Node*>::iterator link_it = links.begin(); link_it != links.end(); link_it++) {
             vdom::Node *link_node = *link_it;
-            if (link_node->w() > 100 && link_node->content().size() > 10) {
+            if (link_node->w() > 100 && link_node->normalized_content().size() > 10) {
                 contain_good_link = true;
                 if (times == 1) {
                     url_set.insert(link_node->href());
