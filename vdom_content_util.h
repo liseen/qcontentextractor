@@ -1,4 +1,5 @@
 #ifndef VDOM_CONTENT_UTIL_H
+#define VDOM_CONTENT_UTIL_H
 
 #include <string>
 #include <vector>

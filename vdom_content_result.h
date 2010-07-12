@@ -9,6 +9,8 @@
 #include <string>
 #include <iostream>
 
+#include "vdom_content_util.h"
+
 namespace vdom {
 namespace content {
 
@@ -44,6 +46,9 @@ struct Result
         std::cout << "keywords: " << keywords << std::endl;
         std::cout << "description: " << description << std::endl;
         std::cout << "content: " << content << std::endl;
+        std::string normal_content;
+        Util::normalize_content(content, normal_content);
+        std::cout << "normal_content: " << normal_content << std::endl;
     }
 };
 

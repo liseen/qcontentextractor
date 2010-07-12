@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <QTime>
 
 #include <google/protobuf/text_format.h>
 
@@ -65,7 +66,10 @@ int main(int argc, char* argv[])
     std::cout << "extractor:" << std::endl;
     vdom::content::Extractor extractor;
     vdom::content::Result ret;
+    QTime begin_time;
+    begin_time.start();
     extractor.extract(&win, ret, true);
+    std::cout<<"elapsed: "<< begin_time.elapsed() << endl;
     ret.debug_print();
     return 0;
 }

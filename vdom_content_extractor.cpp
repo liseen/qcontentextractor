@@ -383,15 +383,15 @@ bool Extractor::is_link_group(RepeatGroup &group)
     }
 
     int times = 0;
-    int avr_x =  -1;
+    int avr_w =  -1;
     std::set<std::string> url_set;
     for (RepeatGroupIter it = group.begin(); it != group.end(); it++) {
         times++;
 
         vdom::Node *node = *it;
         if (times == 1) {
-            avr_x = node->x();
-        } else if (node->x() > 1.1 * avr_x || node->x() < 0.9 * avr_x ) {
+            avr_w = node->w();
+        } else if (node->w() > 1.1 * avr_w || node->w() < 0.9 * avr_w ) {
             return false;
         }
 
@@ -430,8 +430,8 @@ int Extractor::compute_list_confidence(vdom::Document *doc, RepeatGroupList &gro
 {
     int doc_width = doc->width();
     int doc_height = doc->height();
-    if (doc_height > 2 * 847) {
-        doc_height = 2 * 847;
+    if (doc_height > 1.5 * 847) {
+        doc_height = 1.5 * 847;
     }
 
     int central_w = 0.618 * doc_width;
