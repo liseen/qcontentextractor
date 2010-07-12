@@ -64,6 +64,7 @@ bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
     body->build_repeat_sig();
     RepeatGroupList group_list;
     extract_repeat_groups(group_list, body);
+
     result.list_confidence = compute_list_confidence(doc, group_list);
 
     if (debug) {
@@ -92,6 +93,7 @@ bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
         }
     }
 
+    // extract images
     result.extracted_okay = true;
 
     return true;
@@ -384,6 +386,7 @@ bool Extractor::is_link_group(RepeatGroup &group)
 
     int times = 0;
     int avr_w =  -1;
+    int avr_h =  -1;
     std::set<std::string> url_set;
     for (RepeatGroupIter it = group.begin(); it != group.end(); it++) {
         times++;
@@ -395,6 +398,8 @@ bool Extractor::is_link_group(RepeatGroup &group)
             return false;
         }
 
+        avr_h += node->h();
+
         std::list<vdom::Node*> links;
         node->get_elements_by_tag_name("A", links);
         bool contain_good_link = false;
@@ -405,9 +410,9 @@ bool Extractor::is_link_group(RepeatGroup &group)
             if (link_node->w() > 100 && link_node->normalized_content().size() > 10) {
                 contain_good_link = true;
                 if (times == 1) {
-                    url_set.insert(link_node->href());
+                    url_set.insert(link_node->normalized_content());
                 } else {
-                    if (url_set.find(link_node->href()) == url_set.end()) {
+                    if (url_set.find(link_node->normalized_content()) == url_set.end()) {
                         all_same_links = false;
                     }
                 }
@@ -421,6 +426,10 @@ bool Extractor::is_link_group(RepeatGroup &group)
         if (all_same_links) {
             return false;
         }
+    }
+
+    if (avr_h > 0 && avr_h / group.size()  > 250) {
+        return false;
     }
 
     return true;
