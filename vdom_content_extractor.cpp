@@ -4,6 +4,8 @@
 #include <map>
 #include <set>
 
+#include <google/protobuf/text_format.h>
+
 #define VD_MIN(a,b) ((a)>(b)?(b):(a))
 #define VD_MAX(a,b) ((a)>(b)?(a):(b))
 
@@ -94,6 +96,17 @@ bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
     }
 
     // extract images
+    if (debug) {
+        std::list<vdom::Node*> imgs;
+        body->get_elements_by_tag_name("IMG", imgs);
+        std::cout << "images: " << std::endl;
+        for (std::list<vdom::Node*>::iterator it = imgs.begin(); it != imgs.end(); it++) {
+            if ((*it)->w() > 200) {
+                std::cout << (*it)->Utf8DebugString() << std::endl;
+                std::cout << "area: " << (*it)->w() * (*it)->h()<< std::endl;
+            }
+        }
+    }
     result.extracted_okay = true;
 
     return true;
@@ -366,7 +379,7 @@ bool Extractor::extract_repeat_groups(RepeatGroupList &groups, Node* node)
     }
 
     for (it = group_map.begin() ; it != end_it; it++ ) {
-        if (it->second.size() >= 2) {
+        if (it->second.size() >= 3) {
             groups.push_back(it->second);
         } else {
             if (!check_is_noise(it->second.front())) {
@@ -454,12 +467,19 @@ int Extractor::compute_list_confidence(vdom::Document *doc, RepeatGroupList &gro
         if (is_link_group(*lit)) {
             for (RepeatGroupIter it = lit->begin(); it != lit->end(); it++) {
                 vdom::Node *node = *it;
-                int x1 = (VD_MAX((int)node->x(), central_x));
-                int x2 = VD_MIN((int)node->x() + (int)node->w(), central_x + central_w);
-                int y1 = VD_MAX((int)node->y(), central_y);
-                int y2 = VD_MIN((int)node->y() + (int)node->h(), central_y + central_h);
+                int x = node->x();
+                int y = node->y();
+                int w = node->w();
+                int h = node->h();
+                int x1 = VD_MAX(x, central_x);
+                int x2 = VD_MIN(x + w, central_x + central_w);
+                int y1 = VD_MAX(y, central_y);
+                int y2 = VD_MIN(y + h, central_y + central_h);
                 if (x2 > x1 && y2 > y1) {
-                    confidence += (x2 - x1) * (y2 - y1);
+                    int area = (x2 - x1) * (y2 - y1);
+                    if (area * 2 > w * h) {
+                        confidence += area;
+                    }
                 }
             }
         }
