@@ -73,8 +73,9 @@ bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
         std::cout << "body repeat sig: " << body->repeat_sig() << std::endl;
         std::cout << "extract_repats_size " << group_list.size() << std::endl;
         for (RepeatGroupListIter lit = group_list.begin(); lit != group_list.end(); lit++) {
-            if (is_link_group(*lit)) {
+            //if (is_link_group(*lit)) {
                 std::cout << "group: =========================" << std::endl;
+                std::cout << "is_link_group: " <<  is_link_group(*lit) << std::endl;
                 for (RepeatGroupIter it = lit->begin(); it != lit->end(); it++) {
                     vdom::Node *node = *it;
                     std::cout << "node: =========================" << std::endl;
@@ -91,7 +92,7 @@ bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
                         std::cout << "content: " << normal << std::endl;
                     }
                 }
-            }
+            //}
         }
     }
 
@@ -151,6 +152,10 @@ bool Extractor::extract_block_list(Node* node, std::list<TextBlock> &block_list)
 bool Extractor::check_is_noise(Node *node) {
     int doc_width = node->owner_document()->width();
 
+    if (Util::is_noise_tag_name(node->tag_name())) {
+        return true;
+    }
+
     int x = node->x();
     int y = node->y();
     int w = node->w();
@@ -200,7 +205,8 @@ void Extractor::tag_block(TextBlock &block) {
         y > 100 && \
         y < good_block_max_height && \
         block.content_size() > 35 && \
-        block.anchor_ratio() < 20 && block.tag_density() < 0.1 && block.space_ratio() < 50 ) {
+        block.anchor_ratio() < 20 && block.tag_density() < 0.1 && block.space_ratio() < 50 && \
+        Util::contain_good_punct(block.node()->content()) ) {
 
         block.set_is_good(true);
 
@@ -399,6 +405,7 @@ bool Extractor::is_link_group(RepeatGroup &group)
 
     int times = 0;
     int avr_w =  -1;
+    int avr_x =  -1;
     int avr_h =  -1;
     std::set<std::string> url_set;
     for (RepeatGroupIter it = group.begin(); it != group.end(); it++) {
@@ -407,14 +414,22 @@ bool Extractor::is_link_group(RepeatGroup &group)
         vdom::Node *node = *it;
         if (times == 1) {
             avr_w = node->w();
+            avr_x = node->x();
         } else if (node->w() > 1.1 * avr_w || node->w() < 0.9 * avr_w ) {
+            return false;
+        } else if (node->tag_name() == "A" && (node->w() < 250 || node->x() > 1.05 * avr_x || node->x() < 0.95 * avr_x) ) {
             return false;
         }
 
         avr_h += node->h();
 
         std::list<vdom::Node*> links;
-        node->get_elements_by_tag_name("A", links);
+        if (node->tag_name() == "A") {
+            links.push_back(node);
+        } else {
+            node->get_elements_by_tag_name("A", links);
+        }
+
         bool contain_good_link = false;
         bool all_same_links = false;
 
@@ -453,13 +468,13 @@ int Extractor::compute_list_confidence(vdom::Document *doc, RepeatGroupList &gro
     int doc_width = doc->width();
     int doc_height = doc->height();
     if (doc_height > 1.5 * 847) {
-        doc_height = 1.5 * 847;
+        doc_height = (int)(1.5 * 847);
     }
 
-    int central_w = 0.618 * doc_width;
-    int central_h = 0.618 * doc_height;
-    int central_x = 0.5 * (1 - 0.618) * doc_width;
-    int central_y = 0.5 * (1 - 0.618) * doc_height;
+    int central_w = (int) (0.618 * doc_width);
+    int central_h = (int) (0.618 * doc_height);
+    int central_x = (int) (0.5 * (1 - 0.618) * doc_width);
+    int central_y = (int) (0.5 * (1 - 0.618) * doc_height);
 
     int  confidence = 0;
 

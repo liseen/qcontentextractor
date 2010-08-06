@@ -9,7 +9,9 @@ namespace content {
 
 class Util {
 public:
+    static bool is_noise_tag_name(const std::string &tag_name);
     static bool contain_copyright_text(const std::string &text);
+    static bool contain_good_punct(const std::string &text);
 
     static void split_text(const std::string &text, std::vector<std::string> &str_vec, unsigned char sep = '\t');
 
