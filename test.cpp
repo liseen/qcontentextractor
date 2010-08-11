@@ -64,11 +64,11 @@ int main(int argc, char* argv[])
     std::cout << win.Utf8DebugString() << std::endl;
 
     std::cout << "extractor:" << std::endl;
-    vdom::content::Extractor extractor;
+    vdom::content::Extractor extractor(false, true);
     vdom::content::Result ret;
     QTime begin_time;
     begin_time.start();
-    extractor.extract(&win, ret, true);
+    extractor.extract(&win, ret);
     std::cout<<"elapsed: "<< begin_time.elapsed() << endl;
     ret.debug_print();
     return 0;

@@ -27,10 +27,14 @@ typedef std::list<RepeatGroup>::iterator RepeatGroupListIter;
 class Extractor
 {
 public:
-    Extractor();
-    ~Extractor();
+    Extractor(bool need_urls = false, bool debug = false) : m_debug(debug), m_need_urls(need_urls) {
+    }
+    ~Extractor() {
+    }
 
-    bool extract(vdom::Window *window, Result &result, bool debug = false);
+    void set_need_urls(bool need_urls);
+    void extract_urls(vdom::Node *body, std::list<std::string> &urls);
+    bool extract(vdom::Window *window, Result &result);
 
 private:
     bool extract_block_list(Node* node, TextBlockList  &block_list);
@@ -45,6 +49,11 @@ private:
     bool is_link_group(RepeatGroup &group);
 private:
     bool prev_is_noise;
+
+private:
+    bool m_debug;
+    bool m_need_urls;
+
 };
 
 } //namespace vdom

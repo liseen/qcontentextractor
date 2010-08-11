@@ -21,16 +21,21 @@ static void debug_print_block_list(TextBlockList &list)
     }
 }
 
-Extractor::Extractor()
+void Extractor::set_need_urls(bool need_urls)
 {
+    m_need_urls = need_urls;
 }
 
-Extractor::~Extractor()
-{
+void Extractor::extract_urls(vdom::Node *body, std::list<std::string> &urls) {
+    std::list<vdom::Node*> links;
+    body->get_elements_by_tag_name("A", links);
+    for (std::list<vdom::Node*>::iterator it = links.begin() ; it != links.end(); it++) {
+        vdom::Node *node = *it;
+        urls.push_back(node->href());
+    }
 }
 
-
-bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
+bool Extractor::extract(vdom::Window *window, Result &result)
 {
     // init
     vdom::Document *doc = window->mutable_doc();
@@ -54,13 +59,11 @@ bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
     select_good_block(block_list);
     expand_good_block(block_list);
 
-    if (debug) {
+    if (m_debug) {
         debug_print_block_list(block_list);
     }
 
     merge_content_block(block_list, result);
-    //merge_content(block_list);
-
 
     // list page confidence
     body->build_repeat_sig();
@@ -69,7 +72,12 @@ bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
 
     result.list_confidence = compute_list_confidence(doc, group_list);
 
-    if (debug) {
+    // urls
+    if (m_need_urls) {
+        extract_urls(body, result.urls);
+    }
+
+    if (m_debug) {
         std::cout << "body repeat sig: " << body->repeat_sig() << std::endl;
         std::cout << "extract_repats_size " << group_list.size() << std::endl;
         for (RepeatGroupListIter lit = group_list.begin(); lit != group_list.end(); lit++) {
@@ -97,7 +105,7 @@ bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
     }
 
     // extract images
-    if (debug) {
+    if (m_debug) {
         std::list<vdom::Node*> imgs;
         body->get_elements_by_tag_name("IMG", imgs);
         std::cout << "images: " << std::endl;
@@ -108,6 +116,7 @@ bool Extractor::extract(vdom::Window *window, Result &result, bool debug)
             }
         }
     }
+
     result.extracted_okay = true;
 
     return true;

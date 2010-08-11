@@ -17,6 +17,7 @@ namespace content {
 // TODO image src and around text
 struct ImageResult {
     std::string src;
+    std::string alt;
     std::string around_text;
 };
 
@@ -36,6 +37,7 @@ struct Result
     std::string keywords;
     std::string description;
     std::string content;
+    std::list<std::string> urls;
     std::list<ImageResult> images;
 
     void debug_print() {
